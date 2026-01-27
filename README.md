@@ -1,182 +1,57 @@
-📊 Data Validation App
+# Excel-Based Part Validation Application
 
-A full-stack data validation application built with React, TypeScript, and Node.js.
-The app allows users to upload an Excel file, enter a PVI number and ULOC number, and retrieve validated data from the file.
+## Overview
 
-🚀 Overview
+This application is a step-based validation tool built using React, TypeScript, Node.js, and Zustand for state management. The purpose of the application is to support a manufacturing-style validation workflow where a user uploads an Excel file, selects a PVI, selects a ULOC, and then validates parts by scanning them using a Bluetooth barcode scanner.
 
-This application streamlines Excel-based data validation by guiding users through a simple, step-by-step workflow:
+The application is designed for controlled environments such as shop floors, kiosks, or tablets where users must follow a strict sequence of steps and accuracy is critical.
 
-Upload an Excel file
+---
 
-Enter a PVI number
+## Features
 
-Enter a ULOC number
+- Upload and parse Excel (.xlsx / .xls) files
+- Automatically extract and normalize Excel row data
+- Step-based workflow enforced through application state
+- PVI selection from Excel-derived values
+- Searchable ULOC selection
+- Supports duplicate ULOC values
+- Validation process using Bluetooth barcode scanners
+- Real-time scan validation and visual feedback
+- Per-part completion tracking
+- Resettable workflow for repeated use
 
-Instantly receive matching and validated data
+---
 
-The goal is to provide a fast, reliable, and user-friendly validation experience.
+## Technology Stack
 
-🧭 User Flow
+- React
+- TypeScript
+- Node.js
+- Zustand (global state management)
+- Material UI (UI components)
+- XLSX (Excel file parsing)
 
-Upload Excel File
-User uploads a .xlsx or .xls file containing structured data.
+---
 
-Enter PVI Number
-Used to identify the primary validation record.
+## Application Workflow
 
-Enter ULOC Number
-Further filters the dataset for precise results.
+1. Upload an Excel file
+2. Select a PVI from the extracted values
+3. Select a ULOC (searchable)
+4. Validate parts by scanning part numbers
 
-View Results
-The application displays validated data that matches the provided inputs.
+Navigation between steps is controlled by application state rather than URLs to prevent skipping steps.
 
-🖥️ Tech Stack
-Frontend
+---
 
-React
+## Bluetooth Scanner Support
 
-TypeScript
+Bluetooth scanners are treated as keyboard input devices. When a scan occurs, the scanner types the scanned value into the focused input field and submits it using the Enter key. The application listens for this behavior and validates the scanned value against the expected part number.
 
-Axios
+No scanner SDK or additional hardware integration is required.
 
-CSS / Styled Components
+---
 
-Backend
+## Project Structure
 
-Node.js
-
-Express
-
-TypeScript
-
-Excel parsing with xlsx
-
-REST API architecture
-
-✨ Features
-
-Excel file upload and parsing
-
-Step-by-step validation flow
-
-PVI and ULOC input validation
-
-Strong typing with TypeScript
-
-Clean and scalable backend structure
-
-User-friendly error handling
-
-📁 Project Structure
-root
-├── client
-│   ├── src
-│   │   ├── components
-│   │   ├── pages
-│   │   ├── services
-│   │   └── App.tsx
-│   └── package.json
-│
-├── server
-│   ├── src
-│   │   ├── controllers
-│   │   ├── routes
-│   │   ├── services
-│   │   └── index.ts
-│   └── package.json
-│
-└── README.md
-
-🛠️ Installation & Setup
-1. Clone the Repository
-git clone https://github.com/your-username/validation-app.git
-cd validation-app
-
-2. Install Dependencies
-Frontend
-cd client
-npm install
-
-Backend
-cd server
-npm install
-
-3. Run the Application
-Start Backend
-cd server
-npm run dev
-
-Start Frontend
-cd client
-npm start
-
-🌐 Application URLs
-
-Frontend: http://localhost:3000
-
-Backend: http://localhost:5000
-
-📄 Excel File Requirements
-
-Supported formats: .xlsx, .xls
-
-Must include columns for:
-
-PVI Number
-
-ULOC Number
-
-Data should be in a structured tabular format
-
-🧪 Validation Logic
-
-Verifies required columns exist in the Excel file
-
-Matches user-entered PVI and ULOC values
-
-Returns only validated records
-
-Handles missing or invalid data gracefully
-
-🔒 Error Handling
-
-The application handles:
-
-Invalid file formats
-
-Missing required columns
-
-No matching PVI or ULOC records
-
-Server or parsing errors
-
-Clear, user-friendly messages are shown for each case.
-
-📈 Future Enhancements
-
-Authentication and authorization
-
-Export validated data as Excel or CSV
-
-Advanced filtering and search
-
-Drag-and-drop file upload
-
-Configurable validation rules
-
-🤝 Contributing
-
-Contributions are welcome!
-
-Fork the repository
-
-Create a new feature branch
-
-Commit your changes
-
-Open a pull request
-
-📜 License
-
-This project is licensed under the MIT License.
