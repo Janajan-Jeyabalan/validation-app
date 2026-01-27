@@ -9,12 +9,13 @@ import StepLayout from '../../components/StepLayout';
 import { useValidationStore } from '../../store/validationStore';
 
 export default function Step4Validation() {
-  const { pvi, uloc, selectedPart, setStep, reset } = useValidationStore();
+  const { pvi, uloc, selectedParts, setStep, reset } =
+    useValidationStore();
 
-  if (!selectedPart) {
+  if (selectedParts.length === 0) {
     return (
       <StepLayout>
-        <Typography>No part data found. Please go back.</Typography>
+        <Typography>No part data found.</Typography>
       </StepLayout>
     );
   }
@@ -22,36 +23,39 @@ export default function Step4Validation() {
   return (
     <StepLayout>
       <Typography variant="h4">Validation Process</Typography>
-      <Typography sx={{ mb: 3 }}>Scan serial numbers for parts</Typography>
-
       <Typography sx={{ mb: 2 }}>
-        <strong>PVI:</strong> {pvi} | <strong>ULOC:</strong> {uloc}
+        PVI: {pvi} | ULOC: {uloc}
       </Typography>
 
-      {/* PART CARD */}
-      <Box sx={{ p: 3, borderRadius: 2, bgcolor: 'background.paper' }}>
-        <Typography fontWeight="bold">Part Data</Typography>
-        <Typography>ITEM: {selectedPart.item}</Typography>
-        <Typography>PART: {selectedPart.part}</Typography>
-        <Typography>PART DESC: {selectedPart.partDesc}</Typography>
-        <Typography>SUPPNM: {selectedPart.suppnm}</Typography>
-        <Typography>DUNS: {selectedPart.duns}</Typography>
+      {selectedParts.map((part, index) => (
+        <Box
+          key={index}
+          sx={{
+            p: 3,
+            mb: 3,
+            borderRadius: 2,
+            bgcolor: 'background.paper',
+          }}
+        >
+          <Typography fontWeight="bold">Part {index + 1}</Typography>
+          <Typography>ITEM: {part.item}</Typography>
+          <Typography>PART: {part.part}</Typography>
+          <Typography>PART DESC: {part.partDesc}</Typography>
+          <Typography>SUPPNM: {part.suppnm}</Typography>
+          <Typography>DUNS: {part.duns}</Typography>
 
-        <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-          <TextField fullWidth placeholder="Enter serial number" />
-          <Button variant="contained">Scan</Button>
+          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <TextField fullWidth placeholder="Enter serial number" />
+            <Button variant="contained">Scan</Button>
+          </Box>
         </Box>
-      </Box>
+      ))}
 
       <Divider sx={{ my: 3 }} />
 
       <Box sx={{ display: 'flex', gap: 2 }}>
-        <Button variant="outlined" onClick={() => setStep(3)}>
-          Back
-        </Button>
-        <Button variant="outlined" onClick={reset}>
-          Start Over
-        </Button>
+        <Button onClick={() => setStep(3)}>Back</Button>
+        <Button onClick={reset}>Start Over</Button>
       </Box>
     </StepLayout>
   );

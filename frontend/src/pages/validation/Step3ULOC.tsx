@@ -1,4 +1,4 @@
-import { Box, Typography, TextField, Alert } from '@mui/material';
+import { Box, Typography, Alert, TextField } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import StepLayout from '../../components/StepLayout';
 import StepNavigation from '../../components/StepNavigation';
@@ -11,14 +11,13 @@ export default function Step3ULOC() {
     setStep,
     ulocList,
     rows,
-    setSelectedPart,
+    setSelectedParts,
   } = useValidationStore();
 
-  if (!ulocList || ulocList.length === 0 || !rows || rows.length === 0) {
+  if (ulocList.length === 0 || rows.length === 0) {
     return (
       <StepLayout>
-        <Typography variant="h4">Validation Process</Typography>
-        <Alert severity="warning" sx={{ mt: 3 }}>
+        <Alert severity="warning">
           No ULOC data found. Please upload an Excel file first.
         </Alert>
       </StepLayout>
@@ -26,10 +25,11 @@ export default function Step3ULOC() {
   }
 
   const handleNext = () => {
-    const matchedRow = rows.find((row) => row.uloc === uloc);
-    if (!matchedRow) return;
+    const matchedRows = rows.filter(row => row.uloc === uloc);
 
-    setSelectedPart(matchedRow);
+    if (matchedRows.length === 0) return;
+
+    setSelectedParts(matchedRows);
     setStep(4);
   };
 
@@ -42,15 +42,9 @@ export default function Step3ULOC() {
           options={ulocList}
           value={uloc}
           freeSolo
-          onChange={(event, newValue) => setULOC(newValue || '')}
+          onChange={(e, v) => setULOC(v || '')}
           renderInput={(params) => (
-            <TextField
-              {...params}
-              label="ULOC"
-              placeholder="Search ULOC"
-              variant="outlined"
-              fullWidth
-            />
+            <TextField {...params} label="ULOC" />
           )}
         />
       </Box>
