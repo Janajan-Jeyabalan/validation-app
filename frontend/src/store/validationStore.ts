@@ -1,30 +1,82 @@
 import { create } from 'zustand';
-import type { BOMData } from '../utils/excelReader';
+import type { PartRow } from '../utils/excelReader';
 
-interface ValidationState {
+
+export interface ValidationState {
+  /* ---------------- Navigation ---------------- */
   step: number;
+
+  /* ---------------- Selections ---------------- */
   pvi: string;
   uloc: string;
-  excelData: BOMData[];
+
+  /* ---------------- Lists ---------------- */
   pviList: string[];
+  ulocList: string[];
+
+  /* ---------------- Excel Data ---------------- */
+  rows: PartRow[];
+  selectedPart: PartRow | null;
+
+  /* ---------------- Actions ---------------- */
   setStep: (step: number) => void;
+
   setPVI: (pvi: string) => void;
   setULOC: (uloc: string) => void;
-  setExcelData: (data: BOMData[]) => void;
-  setPVIList: (pvis: string[]) => void;
+
+  setPVIList: (list: string[]) => void;
+  setULOCList: (list: string[]) => void;
+
+  setRows: (rows: PartRow[]) => void;
+  setSelectedPart: (row: PartRow | null) => void;
+
   reset: () => void;
 }
 
 export const useValidationStore = create<ValidationState>((set) => ({
+  /* ---------------- Initial State ---------------- */
   step: 1,
+
   pvi: '',
   uloc: '',
-  excelData: [],
+
   pviList: [],
+  ulocList: [],
+
+  rows: [],
+  selectedPart: null,
+
+  /* ---------------- Actions ---------------- */
   setStep: (step) => set({ step }),
-  setPVI: (pvi) => set({ pvi }),
-  setULOC: (uloc) => set({ uloc }),
-  setExcelData: (excelData) => set({ excelData }),
-  setPVIList: (pviList) => set({ pviList }),
-  reset: () => set({ step: 1, pvi: '', uloc: '', excelData: [], pviList: [] }),
+
+  setPVI: (pvi) =>
+    set({
+      pvi,
+      uloc: '',
+      selectedPart: null,
+    }),
+
+  setULOC: (uloc) =>
+    set({
+      uloc,
+      selectedPart: null,
+    }),
+
+  setPVIList: (list) => set({ pviList: list }),
+  setULOCList: (list) => set({ ulocList: list }),
+
+  setRows: (rows) => set({ rows }),
+
+  setSelectedPart: (row) => set({ selectedPart: row }),
+
+  reset: () =>
+    set({
+      step: 1,
+      pvi: '',
+      uloc: '',
+      pviList: [],
+      ulocList: [],
+      rows: [],
+      selectedPart: null,
+    }),
 }));

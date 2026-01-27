@@ -1,16 +1,38 @@
+import React from 'react';
+import { CssBaseline, Container } from '@mui/material';
+import { useValidationStore } from './store/validationStore';
+
 import Step1 from './pages/validation/Step1DataSource';
 import Step2 from './pages/validation/Step2PVI';
 import Step3 from './pages/validation/Step3ULOC';
-import { useValidationStore } from './store/validationStore';
+import Step4Validation from './pages/validation/Step4Validation';
 
-export default function App() {
-  const step = useValidationStore((s) => s.step);
+function App() {
+  const { step } = useValidationStore();
+
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return <Step1 />;          // Use imported name Step1
+      case 2:
+        return <Step2 />;          // Use imported name Step2
+      case 3:
+        return <Step3 />;          // Use imported name Step3
+      case 4:
+        return <Step4Validation />; // Already matches import
+      default:
+        return <Step1 />;          // Use Step1 here too
+    }
+  };
 
   return (
     <>
-      {step === 1 && <Step1 />}
-      {step === 2 && <Step2 />}
-      {step === 3 && <Step3 />}
+      <CssBaseline />
+      <Container maxWidth="md" sx={{ py: 5 }}>
+        {renderStep()}
+      </Container>
     </>
   );
 }
+
+export default App;

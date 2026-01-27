@@ -1,17 +1,17 @@
-import { MenuItem, Select, Typography, Box, Alert } from '@mui/material';
+import { MenuItem, Select, Typography, Alert } from '@mui/material';
 import StepLayout from '../../components/StepLayout';
 import StepNavigation from '../../components/StepNavigation';
 import { useValidationStore } from '../../store/validationStore';
 
 export default function Step2PVI() {
-  const { pvi, setPVI, setStep, reset, pviList, excelData } = useValidationStore();
+  const { pvi, setPVI, setStep, pviList } = useValidationStore();
 
-  if (excelData.length === 0) {
+  if (!pviList || pviList.length === 0) {
     return (
       <StepLayout>
         <Typography variant="h4">Validation Process</Typography>
         <Alert severity="warning" sx={{ mt: 3 }}>
-          No data loaded. Please go back and select an Excel file first.
+          No PVI data found. Please upload an Excel file first.
         </Alert>
       </StepLayout>
     );
@@ -19,7 +19,7 @@ export default function Step2PVI() {
 
   return (
     <StepLayout>
-      <Typography variant="h4">Validation Process</Typography>
+      <Typography variant="h4">Select PVI</Typography>
 
       <Typography sx={{ mt: 3 }}>PVI Number</Typography>
 
@@ -38,8 +38,8 @@ export default function Step2PVI() {
       </Select>
 
       <StepNavigation
+        onBack={() => setStep(1)}
         onNext={() => setStep(3)}
-        onReset={reset}
         disableNext={!pvi}
       />
     </StepLayout>

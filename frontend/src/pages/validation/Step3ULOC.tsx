@@ -1,80 +1,63 @@
-import { MenuItem, Select, Typography, Alert, Box } from '@mui/material';
-import { useMemo } from 'react';
+import { Box, Typography, TextField, Alert } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import StepLayout from '../../components/StepLayout';
 import StepNavigation from '../../components/StepNavigation';
 import { useValidationStore } from '../../store/validationStore';
-import { getDataForPVI } from '../../utils/excelReader';
 
 export default function Step3ULOC() {
-  const { pvi, uloc, setULOC, setStep, excelData } = useValidationStore();
+  const {
+    uloc,
+    setULOC,
+    setStep,
+    ulocList,
+    rows,
+    setSelectedPart,
+  } = useValidationStore();
 
-  // Define allowed ULOC prefixes
-  const allowedPrefixes = ['2B', '2C', '2F', '2T', 'CAA', 'GFX'];
-
-  const ulocList = useMemo(() => {
-    if (!pvi || excelData.length === 0) return [];
-
-    // Get rows for selected PVI
-    const pviData = getDataForPVI(excelData, pvi);
-
-    // Extract ULOC values and filter by allowed prefixes (or blank)
-    const filteredULOCs = [...new Set(
-      pviData
-        .map((row: any) => {
-          // Map possible ULOC column names
-          return row.ULOC || row.uloc || row['ULOC Number'] || row['Uloc'] || '';
-        })
-        .filter(u => {
-          if (!u) return true; // allow blank
-          return allowedPrefixes.some(prefix => u.startsWith(prefix));
-        })
-    )].sort();
-
-    return filteredULOCs;
-  }, [pvi, excelData]);
-
-  if (!pvi || excelData.length === 0) {
+  if (!ulocList || ulocList.length === 0 || !rows || rows.length === 0) {
     return (
       <StepLayout>
         <Typography variant="h4">Validation Process</Typography>
         <Alert severity="warning" sx={{ mt: 3 }}>
-          No PVI selected. Please go back and select a PVI first.
+          No ULOC data found. Please upload an Excel file first.
         </Alert>
       </StepLayout>
     );
   }
 
+  const handleNext = () => {
+    const matchedRow = rows.find((row) => row.uloc === uloc);
+    if (!matchedRow) return;
+
+    setSelectedPart(matchedRow);
+    setStep(4);
+  };
+
   return (
     <StepLayout>
-      <Typography variant="h4">Validation Process</Typography>
-      <Box sx={{ mt: 2, p: 2, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-        <Typography>Selected PVI: <strong>{pvi}</strong></Typography>
+      <Typography variant="h4">Select ULOC</Typography>
+
+      <Box sx={{ mt: 3 }}>
+        <Autocomplete
+          options={ulocList}
+          value={uloc}
+          freeSolo
+          onChange={(event, newValue) => setULOC(newValue || '')}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="ULOC"
+              placeholder="Search ULOC"
+              variant="outlined"
+              fullWidth
+            />
+          )}
+        />
       </Box>
-
-      <Typography sx={{ mt: 3 }}>ULOC</Typography>
-
-      <Select
-        fullWidth
-        value={uloc}
-        onChange={(e) => setULOC(e.target.value)}
-        displayEmpty
-      >
-        <MenuItem value="">Select a ULOC...</MenuItem>
-        {ulocList.map((u) => (
-          <MenuItem key={u} value={u}>
-            {u}
-          </MenuItem>
-        ))}
-      </Select>
-
-      {ulocList.length === 0 && (
-        <Alert severity="info" sx={{ mt: 2 }}>
-          No ULOC data found for the selected PVI with allowed prefixes. Check your Excel file structure.
-        </Alert>
-      )}
 
       <StepNavigation
         onBack={() => setStep(2)}
+        onNext={handleNext}
         disableNext={!uloc}
       />
     </StepLayout>
