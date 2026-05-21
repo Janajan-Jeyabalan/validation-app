@@ -21,12 +21,8 @@ import StepLayout from '../../components/StepLayout';
 import { useValidationStore, type ValidationRecord } from '../../store/validationStore';
 import { useState, useMemo } from 'react';
 
-// ── Shared style tokens ────────────────────────────────────────────────────────
-
 const MONO = { fontFamily: "'JetBrains Mono', monospace" } as const;
 const CONDENSED = { fontFamily: "'Barlow Condensed', sans-serif" } as const;
-
-// ── RecordRow component ────────────────────────────────────────────────────────
 
 function RecordRow({
   record,
@@ -226,8 +222,6 @@ function RecordRow({
     </>
   );
 }
-
-// ── HistoryPage ────────────────────────────────────────────────────────────────
 
 type FilterType = 'all' | 'complete' | 'partial';
 

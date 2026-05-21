@@ -1,9 +1,5 @@
 import * as XLSX from 'xlsx';
 
-/**
- * Represents a single part row extracted from Excel
- * (row 1 and onward)
- */
 export interface PartRow {
   uloc: string;      // Column A (index 0)
   item: string;      // Column D (index 3)
@@ -13,9 +9,6 @@ export interface PartRow {
   duns: string;      // Column I (index 8)
 }
 
-/**
- * Parsed Excel result returned to the app
- */
 export interface ExcelParsedData {
   pviList: string[];
   ulocList: string[];
@@ -43,7 +36,6 @@ export async function readExcelFile(file: File): Promise<ExcelParsedData> {
           return;
         }
 
-        /* -------------------- PVI (ROW 1) -------------------- */
         const firstPVIrowIndex = rows.findIndex((row) =>
           row.some((cell) => {
             const raw = String(cell || '').trim();
@@ -87,7 +79,6 @@ export async function readExcelFile(file: File): Promise<ExcelParsedData> {
           return;
         }
 
-        /* -------------------- PART ROWS (ROW 1+) -------------------- */
         const dataRows = rows.slice(0);
 
         const parsedRows: PartRow[] = dataRows
@@ -106,7 +97,6 @@ export async function readExcelFile(file: File): Promise<ExcelParsedData> {
           return;
         }
 
-        /* -------------------- ULOC LIST -------------------- */
         const ulocList = Array.from(
           new Set(parsedRows.map(row => row.uloc))
         ).sort();

@@ -33,10 +33,8 @@ export interface ValidationState {
   rows: PartRow[];
   selectedParts: PartRow[];
 
-  // ── History ──────────────────────────────────────────────
   history: ValidationRecord[];
 
-  // ── Setters ──────────────────────────────────────────────
   setStep: (step: number) => void;
   setPVI: (pvi: string) => void;
   setULOC: (uloc: string) => void;
@@ -45,7 +43,6 @@ export interface ValidationState {
   setRows: (rows: PartRow[]) => void;
   setSelectedParts: (rows: PartRow[]) => void;
 
-  // ── History actions ───────────────────────────────────────
   saveValidationRecord: (
     parts: { part: string; item: string; partDesc: string; suppnm: string; duns: string; validated: boolean }[],
     validatedCount: number
@@ -56,7 +53,6 @@ export interface ValidationState {
   reset: () => void;
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function loadHistory(): ValidationRecord[] {
   try {
@@ -70,7 +66,6 @@ function persistHistory(records: ValidationRecord[]): void {
   localStorage.setItem(HISTORY_KEY, JSON.stringify(records));
 }
 
-// ── Store ─────────────────────────────────────────────────────────────────────
 
 export const useValidationStore = create<ValidationState>((set, get) => ({
   step: 1,
@@ -86,7 +81,6 @@ export const useValidationStore = create<ValidationState>((set, get) => ({
 
   history: loadHistory(),
 
-  // ── Step / field setters ──────────────────────────────────
 
   setStep: (step) => set({ step }),
 
@@ -99,7 +93,6 @@ export const useValidationStore = create<ValidationState>((set, get) => ({
   setRows: (rows) => set({ rows }),
   setSelectedParts: (rows) => set({ selectedParts: rows }),
 
-  // ── History actions ───────────────────────────────────────
 
   saveValidationRecord: (parts, validatedCount) => {
     const { pvi, uloc, history } = get();
@@ -131,7 +124,6 @@ export const useValidationStore = create<ValidationState>((set, get) => ({
     set({ history: [] });
   },
 
-  // ── Reset (preserves history) ─────────────────────────────
 
   reset: () =>
     set({
