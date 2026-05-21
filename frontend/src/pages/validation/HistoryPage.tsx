@@ -138,7 +138,7 @@ function RecordRow({
       <Collapse in={open}>
         <Box
           sx={{
-            bgcolor: '#0D1523',
+            bgcolor: 'background.paper',
             borderBottom: '1px solid',
             borderColor: 'divider',
             px: 3,
@@ -302,8 +302,8 @@ export default function HistoryPage() {
     px: 2,
     py: 0.85,
     border: '1px solid',
-    borderColor: active ? 'primary.main' : 'rgba(42,61,90,1)',
-    bgcolor: active ? 'rgba(0,114,206,.08)' : 'background.paper',
+    borderColor: active ? 'primary.main' : 'rgb(129, 171, 235)',
+    bgcolor: active ? 'rgba(144, 196, 238, 0.08)' : 'background.paper',
     color: active ? 'primary.main' : 'text.secondary',
     borderRadius: 1.5,
     cursor: 'pointer',
@@ -469,8 +469,8 @@ export default function HistoryPage() {
           sx={{
             mb: 1.5,
             borderRadius: 2,
-            bgcolor: 'rgba(255,184,0,.06)',
-            border: '1px solid rgba(255,184,0,.25)',
+            bgcolor: 'rgba(240, 205, 116, 0.06)',
+            border: '1px solid rgba(236, 205, 126, 0.25)',
             ...CONDENSED,
             fontSize: 13,
           }}
@@ -497,7 +497,7 @@ export default function HistoryPage() {
             gap: 1,
             px: 2,
             py: 1.25,
-            bgcolor: '#1A2235',
+            bgcolor: '#799be8',
             borderBottom: '1px solid',
             borderColor: 'divider',
           }}
