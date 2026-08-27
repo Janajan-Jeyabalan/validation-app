@@ -116,5 +116,5 @@ export async function readExcelFile(file: File): Promise<ExcelParsedData> {
     };
 
     reader.readAsArrayBuffer(file);
-  });
+  }); 
 }

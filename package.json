@@ -1,0 +1,14 @@
+{
+  "name": "validation-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:backend": "powershell -ExecutionPolicy Bypass -File backend\\start-dev.ps1",
+    "start:frontend": "powershell -ExecutionPolicy Bypass -File frontend\\start-dev.ps1",
+    "start:all": "powershell -ExecutionPolicy Bypass -File start-all.ps1",
+    "start:backend:cmd": "cmd /c backend\\start-dev.cmd",
+    "start:frontend:cmd": "cmd /c frontend\\start-dev.cmd",
+    "start:all:cmd": "cmd /c start-all.cmd",
+    "install:all": "powershell -Command \"cd backend; npm install; cd ..\\frontend; npm install\""
+  }
+}
