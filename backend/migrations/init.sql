@@ -1,6 +1,9 @@
 -- Run this SQL against your MySQL server to create the initial schema
 
-CREATE DATABASE IF NOT EXISTS validation_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS validation_app
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
 USE validation_app;
 
 CREATE TABLE IF NOT EXISTS users (

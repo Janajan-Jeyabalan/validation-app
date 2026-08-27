@@ -40,7 +40,7 @@ export default function Step4Validation() {
       })),
       scanStates.filter((s) => s.completed).length
     );
-    setStep(5);
+    reset();
   };
 
   if (selectedParts.length === 0) {
