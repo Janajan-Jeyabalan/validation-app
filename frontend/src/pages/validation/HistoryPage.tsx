@@ -18,11 +18,54 @@ import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import StepLayout from '../../components/StepLayout';
-import { useValidationStore, type ValidationRecord } from '../../store/validationStore';
-import { useState, useMemo } from 'react';
+import {
+  useValidationStore,
+  type ValidationRecord,
+} from '../../store/validationStore';
+import { useState, useMemo, useEffect } from 'react';
 
-const MONO = { fontFamily: "'JetBrains Mono', monospace" } as const;
-const CONDENSED = { fontFamily: "'Barlow Condensed', sans-serif" } as const;
+const MONO = {
+  fontFamily: "'JetBrains Mono', monospace",
+} as const;
+
+const CONDENSED = {
+  fontFamily: "'Barlow Condensed', sans-serif",
+} as const;
+
+function getBuilding(uloc: string): string {
+  const normalizedULOC = uloc.trim().toUpperCase();
+
+  if (normalizedULOC.startsWith('2B')) return 'Building B';
+  if (
+    normalizedULOC.startsWith('2F') ||
+    normalizedULOC.startsWith('2T')
+  ) return 'Building C';
+  if (normalizedULOC.startsWith('2C')) return 'Building D';
+
+  return '';
+}
+
+function getOwner(uloc: string): string {
+  const normalizedULOC = uloc.trim().toUpperCase();
+
+  if (normalizedULOC.startsWith('2B')) return 'Body Shop';
+  if (
+    normalizedULOC.startsWith('2TTS') ||
+    normalizedULOC.startsWith('2FTS') ||
+    normalizedULOC.startsWith('2CTS')
+  ) return 'TFT Sequence';
+  if (
+    normalizedULOC.startsWith('2CTR') ||
+    normalizedULOC.startsWith('2TTR') ||
+    normalizedULOC.startsWith('2FTR')
+  ) return 'TFT Repack';
+  if (
+    normalizedULOC.startsWith('2TTA') ||
+    normalizedULOC.startsWith('2CTA')
+  ) return 'TFT Assembly';
+
+  return '';
+}
 
 function RecordRow({
   record,
@@ -33,24 +76,30 @@ function RecordRow({
 }) {
   const [open, setOpen] = useState(false);
   const isComplete = record.status === 'complete';
+  const building = getBuilding(record.uloc);
+  const owner = getOwner(record.uloc);
 
-  const formatted = new Date(record.timestamp).toLocaleString('en-CA', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  });
+  const formatted = new Date(record.timestamp).toLocaleString(
+    'en-CA',
+    {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }
+  );
 
   return (
     <>
       {/* Main row */}
       <Box
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={() => setOpen((previous) => !previous)}
         sx={{
           display: 'grid',
-          gridTemplateColumns: '32px 160px 1fr 1fr 72px 116px 36px',
+          gridTemplateColumns:
+            '32px 145px 100px 110px 110px 150px 72px 116px 36px',
           alignItems: 'center',
           gap: 1,
           px: 2,
@@ -59,33 +108,78 @@ function RecordRow({
           borderColor: 'divider',
           cursor: 'pointer',
           transition: 'background .15s',
-          '&:hover': { bgcolor: 'rgba(0,114,206,.04)' },
+          '&:hover': {
+            bgcolor: 'rgba(0,114,206,.04)',
+          },
         }}
       >
         {/* Chevron */}
-        <Box sx={{ color: 'text.secondary', display: 'flex', alignItems: 'center' }}>
-          {open
-            ? <KeyboardArrowUpIcon sx={{ fontSize: 16 }} />
-            : <KeyboardArrowDownIcon sx={{ fontSize: 16 }} />}
+        <Box
+          sx={{
+            color: 'text.secondary',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          {open ? (
+            <KeyboardArrowUpIcon sx={{ fontSize: 16 }} />
+          ) : (
+            <KeyboardArrowDownIcon sx={{ fontSize: 16 }} />
+          )}
         </Box>
 
         {/* Timestamp */}
-        <Typography sx={{ ...MONO, fontSize: 11, color: 'text.secondary' }}>
+        <Typography
+          sx={{
+            ...MONO,
+            fontSize: 11,
+            color: 'text.secondary',
+          }}
+        >
           {formatted}
         </Typography>
 
         {/* PVI */}
-        <Typography sx={{ ...MONO, fontSize: 12, color: 'primary.main', fontWeight: 500 }}>
+        <Typography
+          sx={{
+            ...MONO,
+            fontSize: 12,
+            color: 'primary.main',
+            fontWeight: 500,
+          }}
+        >
           {record.pvi}
         </Typography>
 
         {/* ULOC */}
-        <Typography sx={{ ...MONO, fontSize: 12, color: 'text.primary' }}>
+        <Typography
+          sx={{
+            ...MONO,
+            fontSize: 12,
+            color: 'text.primary',
+          }}
+        >
           {record.uloc}
         </Typography>
 
+        {/* Building */}
+        <Typography sx={{ ...MONO, fontSize: 11, color: 'text.primary' }}>
+          {building}
+        </Typography>
+
+        {/* Owner */}
+        <Typography sx={{ ...MONO, fontSize: 11, color: 'text.primary' }}>
+          {owner}
+        </Typography>
+
         {/* Parts count */}
-        <Typography sx={{ ...MONO, fontSize: 12, color: 'text.secondary' }}>
+        <Typography
+          sx={{
+            ...MONO,
+            fontSize: 12,
+            color: 'text.secondary',
+          }}
+        >
           {record.validatedCount} / {record.totalParts}
         </Typography>
 
@@ -93,9 +187,11 @@ function RecordRow({
         <Chip
           size="small"
           icon={
-            isComplete
-              ? <CheckCircleOutlineIcon sx={{ fontSize: '13px !important' }} />
-              : undefined
+            isComplete ? (
+              <CheckCircleOutlineIcon
+                sx={{ fontSize: '13px !important' }}
+              />
+            ) : undefined
           }
           label={isComplete ? 'COMPLETE' : 'PARTIAL'}
           sx={{
@@ -103,25 +199,38 @@ function RecordRow({
             fontSize: 10,
             letterSpacing: '.04em',
             height: 22,
-            bgcolor: isComplete ? 'rgba(0,200,150,.08)' : 'rgba(255,184,0,.08)',
-            color: isComplete ? 'success.main' : '#FFB800',
+            bgcolor: isComplete
+              ? 'rgba(0,200,150,.08)'
+              : 'rgba(255,184,0,.08)',
+            color: isComplete
+              ? 'success.main'
+              : '#FFB800',
             border: '1px solid',
-            borderColor: isComplete ? 'rgba(0,200,150,.25)' : 'rgba(255,184,0,.25)',
-            '& .MuiChip-icon': { color: 'success.main' },
+            borderColor: isComplete
+              ? 'rgba(0,200,150,.25)'
+              : 'rgba(255,184,0,.25)',
+            '& .MuiChip-icon': {
+              color: 'success.main',
+            },
           }}
         />
 
         {/* Delete */}
-        <Tooltip title="Delete record" placement="left">
+        <Tooltip
+          title="Delete record"
+          placement="left"
+        >
           <IconButton
             size="small"
-            onClick={(e) => {
-              e.stopPropagation();
+            onClick={(event) => {
+              event.stopPropagation();
               onDelete();
             }}
             sx={{
               color: 'text.secondary',
-              '&:hover': { color: 'error.main' },
+              '&:hover': {
+                color: 'error.main',
+              },
               borderRadius: 1,
             }}
           >
@@ -152,51 +261,81 @@ function RecordRow({
               mb: 1.5,
             }}
           >
-            Part Details — {record.validatedCount} of {record.totalParts} validated
+            Part Details — {record.validatedCount} of{' '}
+            {record.totalParts} validated
           </Typography>
 
           <Box
             sx={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))',
+              gridTemplateColumns:
+                'repeat(auto-fill, minmax(210px, 1fr))',
               gap: 1,
             }}
           >
-            {record.parts.map((p, i) => (
+            {record.parts.map((part, index) => (
               <Box
-                key={i}
+                key={index}
                 sx={{
                   bgcolor: 'background.paper',
                   border: '1px solid',
-                  borderColor: p.validated ? 'rgba(0,200,150,.2)' : 'rgba(255,184,0,.15)',
+                  borderColor: part.validated
+                    ? 'rgba(0,200,150,.2)'
+                    : 'rgba(255,184,0,.15)',
                   borderRadius: 1.5,
                   p: 1.5,
                 }}
               >
-                {/* Part number + status dot */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                  <Typography sx={{ ...MONO, fontSize: 12, color: 'primary.main', fontWeight: 500 }}>
-                    {p.part}
+                {/* Part number and status dot */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    mb: 1,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      ...MONO,
+                      fontSize: 12,
+                      color: 'primary.main',
+                      fontWeight: 500,
+                    }}
+                  >
+                    {part.part}
                   </Typography>
+
                   <Box
                     sx={{
                       width: 7,
                       height: 7,
                       borderRadius: '50%',
-                      bgcolor: p.validated ? 'success.main' : '#FFB800',
+                      bgcolor: part.validated
+                        ? 'success.main'
+                        : '#FFB800',
                       flexShrink: 0,
                     }}
                   />
                 </Box>
 
                 {/* Field rows */}
-                {([
-                  ['ITEM', p.item],
-                  ['DESC', p.partDesc],
-                  ['SUPPNM', p.suppnm],
-                  ['DUNS', p.duns],
-                ] as [string, string][]).map(([label, val]) => (
-                  <Box key={label} sx={{ display: 'flex', gap: 1, mb: 0.4 }}>
+                {(
+                  [
+                    ['ITEM', part.item],
+                    ['DESC', part.partDesc],
+                    ['SUPPNM', part.suppnm],
+                    ['DUNS', part.duns],
+                  ] as [string, string][]
+                ).map(([label, value]) => (
+                  <Box
+                    key={label}
+                    sx={{
+                      display: 'flex',
+                      gap: 1,
+                      mb: 0.4,
+                    }}
+                  >
                     <Typography
                       sx={{
                         fontSize: 10,
@@ -209,8 +348,15 @@ function RecordRow({
                     >
                       {label}
                     </Typography>
-                    <Typography sx={{ ...MONO, fontSize: 10, color: 'text.primary' }}>
-                      {val || '—'}
+
+                    <Typography
+                      sx={{
+                        ...MONO,
+                        fontSize: 10,
+                        color: 'text.primary',
+                      }}
+                    >
+                      {value || '—'}
                     </Typography>
                   </Box>
                 ))}
@@ -226,30 +372,57 @@ function RecordRow({
 type FilterType = 'all' | 'complete' | 'partial';
 
 export default function HistoryPage() {
-  const { history, deleteRecord, clearHistory, setStep } = useValidationStore();
+  const {
+    history,
+    deleteRecord,
+    clearHistory,
+    reset,
+    loadHistoryFromServer,
+  } = useValidationStore();
 
   const [search, setSearch] = useState('');
-  const [filter, setFilter] = useState<FilterType>('all');
-  const [confirmClear, setConfirmClear] = useState(false);
+  const [filter, setFilter] =
+    useState<FilterType>('all');
+  const [confirmClear, setConfirmClear] =
+    useState(false);
 
-  // Derived stats
-  const totalParts = history.reduce((acc, r) => acc + r.validatedCount, 0);
-  const uniquePVIs = new Set(history.map((r) => r.pvi)).size;
-  const partialCount = history.filter((r) => r.status === 'partial').length;
+    useEffect(() => {
+  void loadHistoryFromServer(1);
+}, [loadHistoryFromServer]);
 
-  // Filtered + searched records
+  // Derived statistics
+  const totalParts = history.reduce(
+    (total, record) =>
+      total + record.validatedCount,
+    0
+  );
+
+  const uniquePVIs = new Set(
+    history.map((record) => record.pvi)
+  ).size;
+
+  const partialCount = history.filter(
+    (record) => record.status === 'partial'
+  ).length;
+
+  // Filtered and searched records
   const filtered = useMemo(() => {
-    const q = search.toLowerCase().trim();
-    return history.filter((r) => {
+    const query = search.toLowerCase().trim();
+
+    return history.filter((record) => {
       const matchesFilter =
         filter === 'all' ||
-        r.status === filter;
+        record.status === filter;
 
       const matchesSearch =
-        !q ||
-        r.pvi.toLowerCase().includes(q) ||
-        r.uloc.toLowerCase().includes(q) ||
-        r.parts.some((p) => p.part.toLowerCase().includes(q) || p.suppnm.toLowerCase().includes(q));
+        !query ||
+        record.pvi.toLowerCase().includes(query) ||
+        record.uloc.toLowerCase().includes(query) ||
+        record.parts.some(
+          (part) =>
+            part.part.toLowerCase().includes(query) ||
+            part.suppnm.toLowerCase().includes(query)
+        );
 
       return matchesFilter && matchesSearch;
     });
@@ -257,32 +430,65 @@ export default function HistoryPage() {
 
   // CSV export
   const handleExportCSV = () => {
-    const header = ['Timestamp', 'PVI', 'ULOC', 'Part #', 'Item', 'Description', 'Supplier', 'DUNS', 'Validated', 'Session Status'];
-    const rows = filtered.flatMap((r) =>
-      r.parts.map((p) => [
-        new Date(r.timestamp).toLocaleString(),
-        r.pvi,
-        r.uloc,
-        p.part,
-        p.item,
-        p.partDesc,
-        p.suppnm,
-        p.duns,
-        p.validated ? 'YES' : 'NO',
-        r.status.toUpperCase(),
+    const header = [
+      'Timestamp',
+      'PVI',
+      'ULOC',
+      'Building',
+      'Owner',
+      'Part #',
+      'Item',
+      'Description',
+      'Supplier',
+      'DUNS',
+      'Validated',
+      'Session Status',
+    ];
+
+    const rows = filtered.flatMap((record) =>
+      record.parts.map((part) => [
+        new Date(record.timestamp).toLocaleString(),
+        record.pvi,
+        record.uloc,
+        getBuilding(record.uloc),
+        getOwner(record.uloc),
+        part.part,
+        part.item,
+        part.partDesc,
+        part.suppnm,
+        part.duns,
+        part.validated ? 'YES' : 'NO',
+        record.status.toUpperCase(),
       ])
     );
 
     const csv = [header, ...rows]
-      .map((row) => row.map((cell) => `"${cell}"`).join(','))
+      .map((row) =>
+        row
+          .map((cell) => {
+            const value = String(cell).replace(
+              /"/g,
+              '""'
+            );
+
+            return `"${value}"`;
+          })
+          .join(',')
+      )
       .join('\n');
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv], {
+      type: 'text/csv;charset=utf-8;',
+    });
+
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `gm-validation-export-${Date.now()}.csv`;
-    a.click();
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download =
+      `gm-validation-export-${Date.now()}.csv`;
+
+    anchor.click();
     URL.revokeObjectURL(url);
   };
 
@@ -296,40 +502,100 @@ export default function HistoryPage() {
     px: 2,
     py: 0.85,
     border: '1px solid',
-    borderColor: active ? 'primary.main' : 'rgb(129, 171, 235)',
-    bgcolor: active ? 'rgba(144, 196, 238, 0.08)' : 'background.paper',
-    color: active ? 'primary.main' : 'text.secondary',
+    borderColor: active
+      ? 'primary.main'
+      : 'rgb(129, 171, 235)',
+    bgcolor: active
+      ? 'rgba(144, 196, 238, 0.08)'
+      : 'background.paper',
+    color: active
+      ? 'primary.main'
+      : 'text.secondary',
     borderRadius: 1.5,
     cursor: 'pointer',
     transition: 'all .15s',
-    '&:hover': { borderColor: 'primary.main', color: 'primary.main' },
+    '&:hover': {
+      borderColor: 'primary.main',
+      color: 'primary.main',
+    },
   });
 
-  // Column header labels
-  const COL_HEADERS = ['', 'Timestamp', 'PVI', 'ULOC', 'Parts', 'Status', ''];
+  const columnHeaders = [
+    '',
+    'Timestamp',
+    'PVI',
+    'ULOC',
+    'Building',
+    'Owner',
+    'Parts',
+    'Status',
+    '',
+  ];
 
   return (
     <StepLayout>
       {/* Page tag */}
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-        <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: 'primary.main' }} />
-        <Typography variant="overline" sx={{ fontSize: 11, letterSpacing: '.12em', color: 'text.secondary' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          mb: 2,
+        }}
+      >
+        <Box
+          sx={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            bgcolor: 'primary.main',
+          }}
+        />
+
+        <Typography
+          variant="overline"
+          sx={{
+            fontSize: 11,
+            letterSpacing: '.12em',
+            color: 'text.secondary',
+          }}
+        >
           Audit Trail
         </Typography>
       </Box>
 
-      <Typography variant="h4" sx={{ fontWeight: 300, lineHeight: 1.15, mb: 0.5 }}>
+      <Typography
+        variant="h4"
+        sx={{
+          fontWeight: 300,
+          lineHeight: 1.15,
+          mb: 0.5,
+        }}
+      >
         Validation Records
       </Typography>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
         <Box>
-          <Typography variant="body2" color="text.secondary">
-            Complete history of all validated parts. Stored locally across sessions.
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            Complete history of all validated parts.
+            Stored locally across sessions.
           </Typography>
         </Box>
+
         <Button
           variant="contained"
-          onClick={() => setStep(1)}
+          onClick={reset}
           sx={{
             ...CONDENSED,
             fontWeight: 600,
@@ -342,14 +608,39 @@ export default function HistoryPage() {
         </Button>
       </Box>
 
-      {/* Stat cards */}
-      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1.25, mb: 3 }}>
-        {([
-          { label: 'Total Sessions', value: history.length, color: 'primary.main' },
-          { label: 'Parts Validated', value: totalParts, color: 'success.main' },
-          { label: 'Unique PVIs', value: uniquePVIs, color: 'primary.main' },
-          { label: 'Partial Sessions', value: partialCount, color: '#FFB800' },
-        ] as const).map(({ label, value, color }) => (
+      {/* Statistic cards */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
+          gap: 1.25,
+          mb: 3,
+        }}
+      >
+        {(
+          [
+            {
+              label: 'Total Sessions',
+              value: history.length,
+              color: 'primary.main',
+            },
+            {
+              label: 'Parts Validated',
+              value: totalParts,
+              color: 'success.main',
+            },
+            {
+              label: 'Unique PVIs',
+              value: uniquePVIs,
+              color: 'primary.main',
+            },
+            {
+              label: 'Partial Sessions',
+              value: partialCount,
+              color: '#FFB800',
+            },
+          ] as const
+        ).map(({ label, value, color }) => (
           <Box
             key={label}
             sx={{
@@ -371,7 +662,15 @@ export default function HistoryPage() {
             >
               {label}
             </Typography>
-            <Typography sx={{ ...MONO, fontSize: 24, fontWeight: 500, color }}>
+
+            <Typography
+              sx={{
+                ...MONO,
+                fontSize: 24,
+                fontWeight: 500,
+                color,
+              }}
+            >
               {value}
             </Typography>
           </Box>
@@ -379,33 +678,69 @@ export default function HistoryPage() {
       </Box>
 
       {/* Toolbar */}
-      <Box sx={{ display: 'flex', gap: 1.25, mb: 1.75, alignItems: 'center', flexWrap: 'wrap' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 1.25,
+          mb: 1.75,
+          alignItems: 'center',
+          flexWrap: 'wrap',
+        }}
+      >
         {/* Search */}
         <TextField
           placeholder="Search PVI, ULOC, part, supplier…"
           size="small"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) =>
+            setSearch(event.target.value)
+          }
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon sx={{ fontSize: 15, color: 'text.secondary' }} />
+                <SearchIcon
+                  sx={{
+                    fontSize: 15,
+                    color: 'text.secondary',
+                  }}
+                />
               </InputAdornment>
             ),
-            sx: { ...MONO, fontSize: 12 },
+            sx: {
+              ...MONO,
+              fontSize: 12,
+            },
           }}
-          sx={{ flex: 1, minWidth: 220 }}
+          sx={{
+            flex: 1,
+            minWidth: 220,
+          }}
         />
 
         {/* Filter buttons */}
-        {(['all', 'complete', 'partial'] as FilterType[]).map((f) => (
+        {(
+          [
+            'all',
+            'complete',
+            'partial',
+          ] as FilterType[]
+        ).map((filterName) => (
           <Box
-            key={f}
+            key={filterName}
             component="button"
-            onClick={() => setFilter(f)}
-            sx={filterSx(filter === f)}
+            onClick={() =>
+              setFilter(filterName)
+            }
+            sx={filterSx(
+              filter === filterName
+            )}
           >
-            {f === 'all' ? 'All' : f.charAt(0).toUpperCase() + f.slice(1)}
+            {filterName === 'all'
+              ? 'All'
+              : filterName
+                  .charAt(0)
+                  .toUpperCase() +
+                filterName.slice(1)}
           </Box>
         ))}
 
@@ -413,7 +748,11 @@ export default function HistoryPage() {
         <Button
           variant="outlined"
           size="small"
-          startIcon={<FileDownloadOutlinedIcon sx={{ fontSize: 15 }} />}
+          startIcon={
+            <FileDownloadOutlinedIcon
+              sx={{ fontSize: 15 }}
+            />
+          }
           onClick={handleExportCSV}
           disabled={filtered.length === 0}
           sx={{
@@ -428,7 +767,14 @@ export default function HistoryPage() {
         </Button>
 
         {/* Clear all */}
-        <Tooltip title={confirmClear ? 'Click again to confirm' : 'Clear all records'} placement="top">
+        <Tooltip
+          title={
+            confirmClear
+              ? 'Click again to confirm'
+              : 'Clear all records'
+          }
+          placement="top"
+        >
           <IconButton
             size="small"
             disabled={history.length === 0}
@@ -438,20 +784,32 @@ export default function HistoryPage() {
                 setConfirmClear(false);
               } else {
                 setConfirmClear(true);
-                setTimeout(() => setConfirmClear(false), 3000);
+
+                setTimeout(() => {
+                  setConfirmClear(false);
+                }, 3000);
               }
             }}
             sx={{
-              color: confirmClear ? 'error.main' : 'text.secondary',
+              color: confirmClear
+                ? 'error.main'
+                : 'text.secondary',
               border: '1px solid',
-              borderColor: confirmClear ? 'error.main' : 'divider',
+              borderColor: confirmClear
+                ? 'error.main'
+                : 'divider',
               borderRadius: 1.5,
               p: 0.85,
               transition: 'all .2s',
-              '&:hover': { color: 'error.main', borderColor: 'error.main' },
+              '&:hover': {
+                color: 'error.main',
+                borderColor: 'error.main',
+              },
             }}
           >
-            <DeleteOutlineIcon sx={{ fontSize: 15 }} />
+            <DeleteOutlineIcon
+              sx={{ fontSize: 15 }}
+            />
           </IconButton>
         </Tooltip>
       </Box>
@@ -463,13 +821,16 @@ export default function HistoryPage() {
           sx={{
             mb: 1.5,
             borderRadius: 2,
-            bgcolor: 'rgba(240, 205, 116, 0.06)',
-            border: '1px solid rgba(236, 205, 126, 0.25)',
+            bgcolor:
+              'rgba(240, 205, 116, 0.06)',
+            border:
+              '1px solid rgba(236, 205, 126, 0.25)',
             ...CONDENSED,
             fontSize: 13,
           }}
         >
-          Click the delete button again to permanently clear all {history.length} records.
+          Click the delete button again to permanently
+          clear all {history.length} records.
         </Alert>
       )}
 
@@ -487,7 +848,8 @@ export default function HistoryPage() {
         <Box
           sx={{
             display: 'grid',
-            gridTemplateColumns: '32px 160px 1fr 1fr 72px 116px 36px',
+            gridTemplateColumns:
+              '32px 145px 100px 110px 110px 150px 72px 116px 36px',
             gap: 1,
             px: 2,
             py: 1.25,
@@ -496,37 +858,62 @@ export default function HistoryPage() {
             borderColor: 'divider',
           }}
         >
-          {COL_HEADERS.map((h, i) => (
-            <Typography
-              key={i}
-              sx={{
-                ...CONDENSED,
-                fontSize: 11,
-                fontWeight: 600,
-                letterSpacing: '.1em',
-                textTransform: 'uppercase',
-                color: 'text.secondary',
-              }}
-            >
-              {h}
-            </Typography>
-          ))}
+          {columnHeaders.map(
+            (header, index) => (
+              <Typography
+                key={index}
+                sx={{
+                  ...CONDENSED,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  letterSpacing: '.1em',
+                  textTransform: 'uppercase',
+                  color: 'text.secondary',
+                }}
+              >
+                {header}
+              </Typography>
+            )
+          )}
         </Box>
 
         {/* Empty state */}
         {filtered.length === 0 ? (
-          <Box sx={{ py: 7, textAlign: 'center' }}>
+          <Box
+            sx={{
+              py: 7,
+              textAlign: 'center',
+            }}
+          >
             <HistoryOutlinedIcon
-              sx={{ fontSize: 38, color: 'text.secondary', opacity: 0.25, display: 'block', mx: 'auto', mb: 1.5 }}
+              sx={{
+                fontSize: 38,
+                color: 'text.secondary',
+                opacity: 0.25,
+                display: 'block',
+                mx: 'auto',
+                mb: 1.5,
+              }}
             />
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mb: 0.5 }}
+            >
               {history.length === 0
                 ? 'No validation sessions recorded yet.'
                 : 'No records match your search or filter.'}
             </Typography>
+
             {history.length === 0 && (
-              <Typography variant="caption" color="text.secondary" sx={{ opacity: 0.6 }}>
-                Complete a validation to see it appear here.
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ opacity: 0.6 }}
+              >
+                Complete a validation to see it appear
+                here.
               </Typography>
             )}
           </Box>
@@ -535,7 +922,9 @@ export default function HistoryPage() {
             <RecordRow
               key={record.id}
               record={record}
-              onDelete={() => deleteRecord(record.id)}
+              onDelete={() =>
+                deleteRecord(record.id)
+              }
             />
           ))
         )}
@@ -546,10 +935,17 @@ export default function HistoryPage() {
         <Typography
           variant="caption"
           color="text.secondary"
-          sx={{ mt: 1.5, display: 'block', ...MONO, fontSize: 11 }}
+          sx={{
+            mt: 1.5,
+            display: 'block',
+            ...MONO,
+            fontSize: 11,
+          }}
         >
           {filtered.length === history.length
-            ? `${history.length} session${history.length !== 1 ? 's' : ''} total`
+            ? `${history.length} session${
+                history.length !== 1 ? 's' : ''
+              } total`
             : `Showing ${filtered.length} of ${history.length} sessions`}
         </Typography>
       )}

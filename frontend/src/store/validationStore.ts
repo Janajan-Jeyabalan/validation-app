@@ -48,7 +48,8 @@ export interface ValidationState {
 
   saveValidationRecord: (
     parts: ValidatedPart[],
-    validatedCount: number
+    validatedCount: number,
+    serverId?: string | number
   ) => void;
 
   saveValidationRecordToServer: (
@@ -175,7 +176,8 @@ export const useValidationStore =
 
     saveValidationRecord: (
       parts,
-      validatedCount
+      validatedCount,
+      serverId
     ) => {
       const {
         pvi,
@@ -184,7 +186,9 @@ export const useValidationStore =
       } = get();
 
       const record: ValidationRecord = {
-        id: crypto.randomUUID(),
+        id: serverId
+          ? String(serverId)
+          : crypto.randomUUID(),
         timestamp: new Date().toISOString(),
         pvi,
         uloc,
@@ -315,25 +319,61 @@ export const useValidationStore =
 
         const items = (
           json.validations || []
-        ).map((validation: any) => {
-          const metadata = parseMetadata(
-            validation.metadata
-          );
+        )
+          .map((validation: any) => {
+            const metadata = parseMetadata(
+              validation.metadata
+            );
 
-          return {
-            id: validation.id?.toString(),
-            timestamp: validation.created_at,
-            pvi: metadata.pvi || '',
-            uloc: metadata.uloc || '',
-            parts: [],
-            totalParts: 0,
-            validatedCount: 0,
-            status:
-              validation.status === 'complete'
-                ? 'complete'
-                : 'partial'
-          } as ValidationRecord;
-        });
+            const parts: ValidatedPart[] = Array.isArray(
+              validation.parts
+            )
+              ? validation.parts.map((part: any) => ({
+                  part: String(part.part || ''),
+                  item: String(part.item || ''),
+                  partDesc: String(part.partDesc || ''),
+                  suppnm: String(part.suppnm || ''),
+                  duns: String(part.duns || ''),
+                  validated: Boolean(part.validated)
+                }))
+              : [];
+
+            const totalParts = Number(
+              validation.total_parts ?? parts.length
+            );
+
+            const validatedCount = Number(
+              validation.validated_count ??
+                parts.filter((part) => part.validated).length
+            );
+
+            return {
+              id: String(validation.id),
+              timestamp:
+                validation.created_at ||
+                new Date().toISOString(),
+              pvi: String(
+                validation.pvi || metadata.pvi || ''
+              ),
+              uloc: String(
+                validation.uloc || metadata.uloc || ''
+              ),
+              parts,
+              totalParts,
+              validatedCount,
+              status:
+                validation.status === 'complete'
+                  ? 'complete'
+                  : 'partial'
+            } as ValidationRecord;
+          })
+          // Do not show unfinished file-upload drafts
+          // as completed validation records.
+          .filter(
+            (record: ValidationRecord) =>
+              record.totalParts > 0 ||
+              record.parts.length > 0
+          );
 
         persistHistory(items);
 
